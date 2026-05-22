@@ -1,0 +1,26 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", ui-sans-serif, system-ui, sans-serif;
+  --color-primary: #25D366; /* WhatsApp Green */
+  --color-primary-dark: #128C7E;
+  --color-secondary: #E0F2FE; /* Baby Blue for "Ver como cliente" */
+  --shadow-premium: 0 20px 25px -5px rgb(0 0 0 / 0.1), 0 8px 10px -6px rgb(0 0 0 / 0.1);
+}
+
+body {
+  @apply bg-slate-50 text-slate-900 antialiased font-sans;
+}
+
+.glass {
+  @apply bg-white/80 backdrop-blur-md border border-slate-200/50;
+}
+
+.card-shine {
+  @apply relative overflow-hidden before:absolute before:inset-0 before:-translate-x-full before:animate-[shimmer_2s_infinite] before:bg-gradient-to-r before:from-transparent before:via-white/10 before:to-transparent;
+}
+
+@keyframes shimmer {
+  100% { transform: translateX(100%); }
+}

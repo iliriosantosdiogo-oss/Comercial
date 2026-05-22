@@ -1,0 +1,71 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if false;
+    }
+
+    function isSignedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(ownerId) {
+      return isSignedIn() && request.auth.uid == ownerId;
+    }
+
+    function isValidId(id) {
+      return id is string && id.size() > 0 && id.size() <= 128;
+    }
+
+    function incoming() {
+      return request.resource.data;
+    }
+
+    function existing() {
+      return resource.data;
+    }
+
+    // Stores
+    match /stores/{storeId} {
+      function isValidStore(data) {
+        return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+          && data.slug is string && data.slug.size() > 0 && data.slug.size() <= 50
+          && data.whatsapp is string && data.whatsapp.size() >= 10 && data.whatsapp.size() <= 20
+          && data.ownerId == request.auth.uid;
+      }
+
+      allow get: if true;
+      allow list: if true; // Public listings or owner listing by slug/uid
+      allow create: if isSignedIn() && isValidId(storeId) && isValidStore(incoming())
+        && incoming().createdAt == request.time;
+      allow update: if isOwner(existing().ownerId) && isValidStore(incoming())
+        && incoming().ownerId == existing().ownerId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isOwner(existing().ownerId);
+    }
+
+    // Products
+    match /products/{productId} {
+      function isValidProduct(data) {
+        return data.name is string && data.name.size() > 0 && data.name.size() <= 100
+          && data.price is number && data.price >= 0
+          && data.storeId is string;
+      }
+
+      function canWriteProduct(storeId) {
+        return isOwner(get(/databases/$(database)/documents/stores/$(storeId)).data.ownerId);
+      }
+
+      allow get: if true;
+      allow list: if true; // Essential for customers viewing products
+      allow create: if isSignedIn() && isValidId(productId) && isValidProduct(incoming())
+        && canWriteProduct(incoming().storeId)
+        && incoming().createdAt == request.time;
+      allow update: if isSignedIn() && isValidProduct(incoming())
+        && canWriteProduct(existing().storeId)
+        && incoming().storeId == existing().storeId
+        && incoming().createdAt == existing().createdAt;
+      allow delete: if isSignedIn() && canWriteProduct(existing().storeId);
+    }
+  }
+}

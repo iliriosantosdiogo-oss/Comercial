@@ -1,0 +1,43 @@
+{
+  "entities": {
+    "Store": {
+      "title": "Store",
+      "description": "Information about a user's store",
+      "type": "object",
+      "properties": {
+        "ownerId": { "type": "string", "description": "The UID of the store owner" },
+        "name": { "type": "string", "description": "The display name of the store" },
+        "slug": { "type": "string", "description": "Unique URL identifier for the store" },
+        "whatsapp": { "type": "string", "description": "WhatsApp number in international format" },
+        "currency": { "type": "string", "description": "Store currency code (e.g., BRL, USD)" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["ownerId", "name", "slug", "whatsapp"]
+    },
+    "Product": {
+      "title": "Product",
+      "description": "A product listed in a store",
+      "type": "object",
+      "properties": {
+        "storeId": { "type": "string", "description": "The ID of the store this product belongs to" },
+        "name": { "type": "string" },
+        "description": { "type": "string" },
+        "price": { "type": "number" },
+        "imageUrl": { "type": "string" },
+        "active": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["storeId", "name", "price"]
+    }
+  },
+  "firestore": {
+    "stores": {
+      "schema": "Store",
+      "description": "Collection of all stores"
+    },
+    "products": {
+      "schema": "Product",
+      "description": "Collection of all products across all stores"
+    }
+  }
+}
